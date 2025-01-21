@@ -20,11 +20,23 @@ def query_neo4j(cypher_query):
 
 def main():
     st.title("Running Shoe Knowledge Graph Assistant")
+    st.write(
+        "This app provides shoe suggestions for neutral road runners based on a few characteristics. If you need a "
+        "stability shoe, scroll down to learn about the brands and there will be atleast one suggestion from each "
+        "brand.")
 
+    # Disclaimer
+    st.markdown(
+        """
+        **Disclaimer:** I am not a medical professional. If you are experiencing pain or discomfort while running, 
+        please consult with a qualified healthcare provider or medical professional for personalized advice.
+        """
+    )
     # Step 1: Striker Type
     striker_type = st.selectbox(
         "Are you a heel striker or a mid/forefoot striker?",
-        ["Heel Striker", "Mid/Forefoot Striker"]
+        ["", "Heel Striker", "Mid/Forefoot Striker"],  # Add a blank option
+        format_func=lambda x: "Select an option" if x == "" else x  # Placeholder text
     )
 
     if striker_type == "Heel Striker":
@@ -35,7 +47,11 @@ def main():
     st.markdown("---")
 
     # Step 2: Pain Guidance
-    pain = st.selectbox("Do you have any pain while running?", ["Knees", "Ankles", "None"])
+    pain = st.selectbox(
+        "Do you have any pain while running?",
+        ["", "Knees", "Ankles", "None"],  # Add a blank option
+        format_func=lambda x: "Select an option" if x == "" else x  # Placeholder text
+    )
 
     if pain == "Knees":
         st.write("Try a shoe with a lower offset. Start with decreasing the offset by 2mm.")
@@ -55,7 +71,8 @@ def main():
     # Step 3: Offset Queries
     offset_query = st.selectbox(
         "Do you want to see shoes with offset of 8mm and higher or 8mm and lower?",
-        ["8mm and higher", "8mm and lower"]
+        ["", "8mm and higher", "8mm and lower"],  # Add a blank option
+        format_func=lambda x: "Select an option" if x == "" else x  # Placeholder text
     )
 
     if offset_query == "8mm and higher":
@@ -81,19 +98,23 @@ def main():
     st.markdown("---")
 
     # Step 4: Brand Details
-    brand = st.selectbox("Select a brand to learn more about it:", ["Saucony", "Brooks", "Hoka", "Nike", "On", "Asics",
-                                                                    "New Balance"])
+    brand = st.selectbox(
+        "Select a brand to learn more about it:",
+        ["", "Saucony", "Brooks", "Hoka", "Nike", "On", "Asics", "New Balance"],  # Add a blank option
+        format_func=lambda x: "Select a brand" if x == "" else x  # Placeholder text
+    )
 
-    query = f"""
-        MATCH (b:Brand {{brandName: '{brand}'}})
-        RETURN b.notesBrand AS Notes
-    """
-    results = query_neo4j(query)
-    st.write(f"About {brand}:")
-    if results:
-        st.write(results[0]['Notes'])
-    else:
-        st.write("No details found for this brand.")
+    if brand:
+        query = f"""
+            MATCH (b:Brand {{brandName: '{brand}'}})
+            RETURN b.notesBrand AS Notes
+        """
+        results = query_neo4j(query)
+        st.write(f"About {brand}:")
+        if results:
+            st.write(results[0]['Notes'])
+        else:
+            st.write("No details found for this brand.")
 
     st.markdown("---")
 
@@ -111,3 +132,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
