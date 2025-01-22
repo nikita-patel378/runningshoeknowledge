@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv(dotenv_path='dot.env')
-NEO4J_URL = os.getenv("NEO4J_URL", "bolt://localhost:7687")
+NEO4J_URL = os.getenv("NEO4J_URL")
 NEO4J_USERNAME = os.getenv("NEO4J_USERNAME")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 
@@ -32,6 +32,36 @@ def main():
         please consult with a qualified healthcare provider or medical professional for personalized advice.
         """
     )
+
+    st.subheader("General Running Shoe Guidance")
+    # cushioning
+    with st.expander("What type of cushioning should you look for?"):
+        st.write(
+            """If pushing for more distance, max cushioning can be beneficial while training. For race day, 
+            you can consider a lighter cushioning shoe. Max cushioning will absorb impact on the ground while less 
+            cushioning will be more responsive when running. Hoka’s website mentions this on their cushioning scale."""
+        )
+
+    # multiple pairs of running shoes
+    with st.expander("Should you have multiple pairs of running shoes?"):
+        st.write(
+            """
+            For half marathons and marathons, having training shoes and having race day shoes can be beneficial. 
+            This lessens the risk of your shoes wearing out during your race. 
+            You can also consider a carbon-plated shoe for your race day shoe.
+            """
+        )
+
+    # running during wet weather season
+    with st.expander("What shoes should you pick during rainy/wet weather?"):
+        st.write(
+            """
+            Look for shoes that are labeled as GTX or Gore-Tex. These shoes are designed to be water-resistant or waterproof, 
+            making them suitable for wet weather conditions.
+            """
+        )
+
+    st.markdown("---")
     # Step 1: Striker Type
     striker_type = st.selectbox(
         "Are you a heel striker or a mid/forefoot striker?",
@@ -132,4 +162,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
