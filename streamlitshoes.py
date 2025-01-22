@@ -19,7 +19,7 @@ def query_neo4j(cypher_query):
 
 
 def main():
-    st.title("Running Shoe Knowledge Graph Assistant")
+    st.title("Running Shoe Knowledge Assistant")
     st.write(
         "This app provides shoe suggestions for neutral road runners based on a few characteristics. If you need a "
         "stability shoe, scroll down to learn about the brands and there will be atleast one suggestion from each "
