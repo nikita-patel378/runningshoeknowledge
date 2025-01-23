@@ -142,9 +142,9 @@ def main():
         query = """
             MATCH (s:Shoe)-[:HAS_OFFSET]->(o:Offset), (s)-[:HAS_BRAND]->(b:Brand)
             WHERE toFloat(substring(o.offsetValue, 0, size(o.offsetValue) - 2)) >= 8
-            RETURN s.name AS Shoe, o.offsetValue AS Offset, b.brandName AS Brand
+            RETURN s.name AS source, b.brandName AS relationship, o.offsetValue AS target
         """
-        
+
         st.write("Shoes with 8mm offset and higher:")
         graph_path = render_graph(query)
         st.components.v1.html(open(graph_path, "r").read(), height=500, width=1000)
@@ -153,9 +153,9 @@ def main():
         query = """
             MATCH (s:Shoe)-[:HAS_OFFSET]->(o:Offset), (s)-[:HAS_BRAND]->(b:Brand)
             WHERE toFloat(substring(o.offsetValue, 0, size(o.offsetValue) - 2)) <= 8
-            RETURN s.name AS Shoe, o.offsetValue AS Offset, b.brandName AS Brand
+            RETURN s.name AS source, b.brandName AS relationship, o.offsetValue AS target
         """
-        
+
         st.write("Shoes with offset 8mm and lower:")
         graph_path = render_graph(query)
         st.components.v1.html(open(graph_path, "r").read(), height=500, width=1000)
@@ -188,7 +188,7 @@ def main():
         query = """
             MATCH (s:Shoe)-[:HAS_BRAND]->(b:Brand)
             WHERE s.isCarbonPlated = True
-            RETURN s.name AS ShoeName, b.brandName AS BrandName
+            RETURN s.name AS source, '' AS relationship, b.brandName AS target
         """
         st.write("Carbon-plated shoes:")
         graph_path = render_graph(query, show_relationship_labels=False)
