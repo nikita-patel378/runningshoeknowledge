@@ -1,6 +1,8 @@
 import streamlit as st
 from neo4j import GraphDatabase
 from dotenv import load_dotenv
+from pyvis.network import Network
+import tempfile
 import os
 
 load_dotenv(dotenv_path='dot.env')
@@ -16,6 +18,37 @@ def query_neo4j(cypher_query):
     with driver.session() as session:
         result = session.run(cypher_query)
         return [record.data() for record in result]
+
+
+def render_graph(cypher_query, show_relationship_labels=True):
+    # Run the Cypher query
+    with driver.session() as session:
+        result = session.run(cypher_query)
+
+        # Initialize Pyvis network
+        net = Network(height="500px", width="1000px", bgcolor="#000080", font_color="white")
+
+        # Extract nodes and edges from the query results
+        for record in result:
+            source = record.get("source")
+            target = record.get("target")
+            relationship = record.get("relationship")
+
+            # Add nodes
+            if source:
+                net.add_node(source, label=source, title=source, color="#b4beed")
+            if target:
+                net.add_node(target, label=target, title=target, color="#b4beed")
+
+            # Add edges
+            if source and target:
+                net.add_edge(source, target, label=relationship if show_relationship_labels else "")
+
+        # Save the graph to a temporary file
+        temp_dir = tempfile.gettempdir()
+        graph_path = os.path.join(temp_dir, "graph.html")
+        net.write_html(graph_path)
+        return graph_path
 
 
 def main():
@@ -53,7 +86,7 @@ def main():
         )
 
     # running during wet weather season
-    with st.expander("What shoes should you pick during rainy/wet weather?"):
+    with st.expander("What type of shoes should you pick during rainy/wet weather?"):
         st.write(
             """
             Look for shoes that are labeled as GTX or Gore-Tex. These shoes are designed to be water-resistant or waterproof, 
@@ -100,7 +133,7 @@ def main():
 
     # Step 3: Offset Queries
     offset_query = st.selectbox(
-        "Do you want to see shoes with offset of 8mm and higher or 8mm and lower?",
+        "Do you want to see shoes with an 8mm offset and higher or 8mm offset and lower?",
         ["", "8mm and higher", "8mm and lower"],  # Add a blank option
         format_func=lambda x: "Select an option" if x == "" else x  # Placeholder text
     )
@@ -111,9 +144,10 @@ def main():
             WHERE toFloat(substring(o.offsetValue, 0, size(o.offsetValue) - 2)) >= 8
             RETURN s.name AS Shoe, o.offsetValue AS Offset, b.brandName AS Brand
         """
-        results = query_neo4j(query)
-        st.write("Shoes with offset 8mm and higher:")
-        st.write(results)
+        
+        st.write("Shoes with 8mm offset and higher:")
+        graph_path = render_graph(query)
+        st.components.v1.html(open(graph_path, "r").read(), height=500, width=1000)
 
     elif offset_query == "8mm and lower":
         query = """
@@ -121,15 +155,16 @@ def main():
             WHERE toFloat(substring(o.offsetValue, 0, size(o.offsetValue) - 2)) <= 8
             RETURN s.name AS Shoe, o.offsetValue AS Offset, b.brandName AS Brand
         """
-        results = query_neo4j(query)
+        
         st.write("Shoes with offset 8mm and lower:")
-        st.write(results)
+        graph_path = render_graph(query)
+        st.components.v1.html(open(graph_path, "r").read(), height=500, width=1000)
 
     st.markdown("---")
 
     # Step 4: Brand Details
     brand = st.selectbox(
-        "Select a brand to learn more about it:",
+        "Select a brand to read notes about the brand:",
         ["", "Saucony", "Brooks", "Hoka", "Nike", "On", "Asics", "New Balance"],  # Add a blank option
         format_func=lambda x: "Select a brand" if x == "" else x  # Placeholder text
     )
@@ -149,18 +184,16 @@ def main():
     st.markdown("---")
 
     # Step 5: Carbon-Plated Shoes
-    if st.checkbox("Show me all carbon-plated shoes"):
+    if st.checkbox("Show me carbon-plated shoes"):
         query = """
             MATCH (s:Shoe)-[:HAS_BRAND]->(b:Brand)
             WHERE s.isCarbonPlated = True
             RETURN s.name AS ShoeName, b.brandName AS BrandName
         """
-        results = query_neo4j(query)
         st.write("Carbon-plated shoes:")
-        st.write(results)
+        graph_path = render_graph(query, show_relationship_labels=False)
+        st.components.v1.html(open(graph_path, "r").read(), height=500, width=1000)
 
 
 if __name__ == "__main__":
     main()
-
-
