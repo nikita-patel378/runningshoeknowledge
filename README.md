@@ -1,2 +1,4 @@
 # runningshoeknowledge
-This project creates a shoe knowledge graph to provide information about similarities between certain running shoes and how to choose a shoe for running.
+The purpose of this was to share what I knew about running shoes after running for over a decade to help runners decide a shoe for themselves.
+
+
