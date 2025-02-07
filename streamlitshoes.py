@@ -26,7 +26,7 @@ def render_graph(cypher_query, show_relationship_labels=True):
         result = session.run(cypher_query)
 
         # Initialize Pyvis network
-        net = Network(height="500px", width="1000px", bgcolor="#d2b48c", font_color="#412544")
+        net = Network(height="500px", width="1000px", bgcolor="#b4beed", font_color="#412544")
 
         # Extract nodes and edges from the query results
         for record in result:
